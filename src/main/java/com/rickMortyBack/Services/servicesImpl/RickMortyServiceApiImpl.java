@@ -8,8 +8,6 @@ import com.rickMortyBack.Services.services.RickMortyServiceApi;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,19 +15,20 @@ import java.util.Objects;
 @Service
 public class RickMortyServiceApiImpl implements RickMortyServiceApi {
     private final RestTemplate restTemplate;
-    private final String rickMortyUrl = "https://rickandmortyapi.com/api/character";
 
     public RickMortyServiceApiImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public List<RickMortyCharacter> getAllCharacters() throws JsonProcessingException {
+        String rickMortyUrl = "https://rickandmortyapi.com/api/character";
         List<RickMortyCharacter> allCharacters = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
         int page = 1;
+
         while (true) {
-            String url = UriComponentsBuilder.fromUriString("https://rickandmortyapi.com/api/character")
+            String url = UriComponentsBuilder.fromUriString(rickMortyUrl)
                     .queryParam("page", page)
                     .toUriString();
 
@@ -37,8 +36,10 @@ public class RickMortyServiceApiImpl implements RickMortyServiceApi {
             JsonNode responseNode = objectMapper.readTree(jsonResponse);
 
             List<RickMortyCharacter> characters = parseJson(responseNode.toString());
-            if (characters != null) {
+            if (characters != null && !characters.isEmpty()) {
                 allCharacters.addAll(characters);
+            } else {
+                break;
             }
 
             JsonNode infoNode = responseNode.get("info");
@@ -49,7 +50,6 @@ public class RickMortyServiceApiImpl implements RickMortyServiceApi {
             page++;
         }
 
-        allCharacters.forEach(c->System.out.println(c.getName()));
         return allCharacters;
     }
     @Override
