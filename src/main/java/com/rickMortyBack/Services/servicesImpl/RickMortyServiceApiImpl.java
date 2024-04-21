@@ -7,24 +7,51 @@ import com.rickMortyBack.Entities.RickMortyCharacter;
 import com.rickMortyBack.Services.services.RickMortyServiceApi;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class RickMortyServiceApiImpl implements RickMortyServiceApi {
     private final RestTemplate restTemplate;
+    private final String rickMortyUrl = "https://rickandmortyapi.com/api/character";
 
     public RickMortyServiceApiImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public List<RickMortyCharacter> getAllCharacters() throws JsonProcessingException {
+        List<RickMortyCharacter> allCharacters = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        String jsonResponse = restTemplate.getForObject("https://rickandmortyapi.com/api/character", String.class);
-        List<RickMortyCharacter> productos = parseJson(jsonResponse);
-        return productos;
+        int page = 1;
+        while (true) {
+            String url = UriComponentsBuilder.fromUriString("https://rickandmortyapi.com/api/character")
+                    .queryParam("page", page)
+                    .toUriString();
+
+            String jsonResponse = restTemplate.getForObject(url, String.class);
+            JsonNode responseNode = objectMapper.readTree(jsonResponse);
+
+            List<RickMortyCharacter> characters = parseJson(responseNode.toString()); // Convertir JsonNode a String
+            if (characters != null) {
+                allCharacters.addAll(characters);
+            }
+
+            JsonNode infoNode = responseNode.get("info");
+            if (infoNode == null || infoNode.get("next").isNull()) {
+                break;
+            }
+
+            page++;
+        }
+
+        allCharacters.forEach(c->System.out.println(c.getName()));
+        return allCharacters;
     }
+
 
     public void saveRickMortyCharacter(RickMortyCharacter rickMortyCharacter) {
       //  rickMortyRepository.save(rickMortyCharacter);
@@ -46,22 +73,20 @@ public class RickMortyServiceApiImpl implements RickMortyServiceApi {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readValue(json, JsonNode.class);
 
-        // Extraer solo los campos deseados
         List<RickMortyCharacter> characters = new ArrayList<>();
         for (JsonNode characterNode : rootNode.path("results")) {
-            Long id = characterNode.path("id").asLong();
-            String nameCharacter = characterNode.path("name").asText();
-            String typeCharacter = characterNode.path("type").asText();
-            String dateCreationCharacter = characterNode.path("created").asText();
-            int numberEpisode = characterNode.path("episode").asInt();
+            long id = characterNode.path("id").asLong();
+            String name = characterNode.path("name").asText();
+            String imageUrl = characterNode.path("image").asText();
+            String created = characterNode.path("created").asText();
 
-            // Crear un objeto RickMortyCharacter con los datos extraídos
-            RickMortyCharacter character = new RickMortyCharacter(id, nameCharacter, typeCharacter, dateCreationCharacter,numberEpisode);
+            RickMortyCharacter character = new RickMortyCharacter(id, name, created, imageUrl);
             characters.add(character);
         }
 
         return characters;
     }
+
 
 
 }

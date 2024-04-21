@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -14,11 +15,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class RickMortyCharacter {
-
-
     Long id=0L;
-    String nameCharacter;
-    String typeCharacter;
-    String dateCreationCharacter;
-    int numberEpisode;
+    String name;
+    String created;
+    String imageUrl;
+
 }
