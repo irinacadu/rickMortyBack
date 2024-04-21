@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class RickMortyServiceApiImpl implements RickMortyServiceApi {
@@ -35,7 +36,7 @@ public class RickMortyServiceApiImpl implements RickMortyServiceApi {
             String jsonResponse = restTemplate.getForObject(url, String.class);
             JsonNode responseNode = objectMapper.readTree(jsonResponse);
 
-            List<RickMortyCharacter> characters = parseJson(responseNode.toString()); // Convertir JsonNode a String
+            List<RickMortyCharacter> characters = parseJson(responseNode.toString());
             if (characters != null) {
                 allCharacters.addAll(characters);
             }
@@ -51,23 +52,15 @@ public class RickMortyServiceApiImpl implements RickMortyServiceApi {
         allCharacters.forEach(c->System.out.println(c.getName()));
         return allCharacters;
     }
-
-
-    public void saveRickMortyCharacter(RickMortyCharacter rickMortyCharacter) {
-      //  rickMortyRepository.save(rickMortyCharacter);
-    }
-
     @Override
-    public void deleteRickMortyCharacter(Long id) {
-      //  rickMortyRepository.deleteById(id);
+    public RickMortyCharacter getCharacterById(Long characterId) throws JsonProcessingException {
+       List<RickMortyCharacter> characters = this.getAllCharacters();
+        return characters.stream()
+                .filter(character -> Objects.equals(character.getId(), characterId))
+                .findFirst()
+                .orElse(null);
+
     }
-
-
-    @Override
-    public RickMortyCharacter updateRickMortyCharacter(Long id) {
-        return null;
-    }
-
 
     public List<RickMortyCharacter> parseJson(String json) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -86,6 +79,24 @@ public class RickMortyServiceApiImpl implements RickMortyServiceApi {
 
         return characters;
     }
+    public void saveRickMortyCharacter(RickMortyCharacter rickMortyCharacter) {
+      //  rickMortyRepository.save(rickMortyCharacter);
+    }
+
+    @Override
+    public void deleteRickMortyCharacter(Long id) {
+      //  rickMortyRepository.deleteById(id);
+    }
+
+
+    @Override
+    public RickMortyCharacter updateRickMortyCharacter(Long id) {
+        return null;
+    }
+
+
+
+
 
 
 

@@ -19,5 +19,4 @@ public class RickMortyCharacter {
     String name;
     String created;
     String imageUrl;
-
 }

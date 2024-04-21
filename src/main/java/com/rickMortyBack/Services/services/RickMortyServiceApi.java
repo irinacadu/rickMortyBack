@@ -10,6 +10,8 @@ import java.util.List;
 public interface RickMortyServiceApi {
     List<RickMortyCharacter> getAllCharacters() throws JsonProcessingException;
     void saveRickMortyCharacter(RickMortyCharacter rickMortyCharacter);
-    void deleteRickMortyCharacter (Long id);
+    void deleteRickMortyCharacter (Long characterId);
     RickMortyCharacter updateRickMortyCharacter(Long id);
+
+    RickMortyCharacter getCharacterById(Long characterId) throws JsonProcessingException;
 }

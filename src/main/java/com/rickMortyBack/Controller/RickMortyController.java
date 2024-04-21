@@ -27,5 +27,10 @@ public class RickMortyController {
         return rickMortyServiceApi.getAllCharacters();
     }
 
+    @PostMapping("/character-detail")
+    @ResponseBody
+    public RickMortyCharacter getCharacterById(@RequestParam("character_id")Long character_id) throws JsonProcessingException {
+        return rickMortyServiceApi.getCharacterById(character_id);
+    }
 
 }
